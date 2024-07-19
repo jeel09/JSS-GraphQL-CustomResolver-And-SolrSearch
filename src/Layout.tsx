@@ -27,7 +27,6 @@ const Layout = ({ layoutData, headLinks }: LayoutProps): JSX.Element => {
         <link rel="stylesheet" href="./css/bootstrap.min.css" />
         <link rel="stylesheet" href="./css/nice-select.css" />
         <link rel="stylesheet" href="./css/font-awesome.min.css" />
-        <link rel="stylesheet" href="./css/icofont.css" />
         <link rel="stylesheet" href="./css/slicknav.min.css" />
         <link rel="stylesheet" href="./css/owl-carousel.css" />
         <link rel="stylesheet" href="./css/datepicker.css" />
