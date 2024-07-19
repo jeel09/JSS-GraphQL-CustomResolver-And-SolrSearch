@@ -27,6 +27,11 @@ type Item = {
 
 type ItemSearchResults = {
     results: Item[];
+    //for pagination
+    pageInfo: {
+        endCursor: string;
+        hasNext: boolean;
+    };
 };
 
 type GraphQlProductProps = ComponentProps & {
@@ -34,19 +39,18 @@ type GraphQlProductProps = ComponentProps & {
         data: {
             contextItem: {
                 id: string;
-                children: ItemSearchResults;
                 pageTitle: {
                     value: string;
                 };
+                children: ItemSearchResults;
             };
         };
     };
 };
 
 const GraphQLProduct = (props: GraphQlProductProps): JSX.Element => {
-    // Query results in integrated GraphQL replace the normal `fields` data
-    // i.e. with { data, }
     const { contextItem } = props.fields.data;
+    console.log('props', props);
 
     return (
         <div data-e2e-id="graphql-integrated">
