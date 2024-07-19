@@ -16,8 +16,10 @@ const Services = (props: ServiceFields) => {
     const { fields } = props;
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
+    const [isSearchClicked, setIsSearchClicked] = useState(false);
 
     const handleSearch = async () => {
+        setIsSearchClicked(true);
         try {
             const response = await axios.post(
                 'https://headlessdevsc.dev.local/api/sitecore/Search/SearchResult',
@@ -32,7 +34,6 @@ const Services = (props: ServiceFields) => {
         } catch (error) {
             console.error('Error fetching search results:', error);
             setResults([]);
-        } finally {
         }
     };
 
@@ -48,32 +49,23 @@ const Services = (props: ServiceFields) => {
                 <button className='ml-2 rounded p-1' onClick={handleSearch}>Search</button>
             </div>
 
-            <h2 style={{ textAlign: 'center' }}><Text field={fields.Heading} /></h2>
+            {(!isSearchClicked || (isSearchClicked && results.length > 0)) && (
+                <h2 style={{ textAlign: 'center' }}><Text field={fields.Heading} /></h2>
+            )}
+
             <div className="container">
                 <div className="row">
-                    {(!results || results.length === 0) ? (
-                        fields.items.map((item: any, index) => (
-                            <div key={index} className="col-lg-4 col-md-6 col-12 p-2">
-                                <div className="card">
-                                    <div className="content">
-                                        <h4><Text field={item.Title} /></h4>
-                                        <p><Text field={item.Description} /></p>
-                                    </div>
+                    {(!isSearchClicked || (isSearchClicked && results.length < 0) ? fields.items : results).map((item: any, index) => (
+                        <div key={index} className="col-lg-4 col-md-6 col-12 p-2">
+                            <div className="card">
+                                <div className="content">
+                                    <h4><Text field={isSearchClicked ? { value: item.Title } : item.Title} /></h4>
+                                    <p><Text field={isSearchClicked ? { value: item.Description } : item.Description} /></p>
                                 </div>
                             </div>
-                        ))
-                    ) : (
-                        results.map((item: any, index) => (
-                            <div key={index} className="col-lg-4 col-md-6 col-12 p-2">
-                                <div className="card">
-                                    <div className="content">
-                                        <h4><Text field={{ value: item.Title }} /></h4>
-                                        <p><Text field={{ value: item.Description }} /></p>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    )}
+                        </div>
+                    ))}
+                    {isSearchClicked && results.length === 0 && <h3 style={{ textAlign: 'center', color: 'red' }}>No Search Results Found</h3>}
                 </div>
             </div>
         </section>
