@@ -50,7 +50,6 @@ type GraphQlProductProps = ComponentProps & {
 
 const GraphQLProduct = (props: GraphQlProductProps): JSX.Element => {
     const { contextItem } = props.fields.data;
-    console.log('props', props);
 
     return (
         <div data-e2e-id="graphql-integrated">
