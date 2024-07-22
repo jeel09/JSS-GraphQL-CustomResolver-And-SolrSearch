@@ -66,24 +66,42 @@ const Services = (props: ServiceFields) => {
         fetchBrandsAndCategories();
     }, []);
 
-    const handleSearch = async () => {
+    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIsSearchClicked(true);
-        try {
-            const response = await axios.post(
-                'https://headlessdevsc.dev.local/api/sitecore/Search/SearchResult',
-                { query: query, brands: selectedBrands, categories: selectedCategories },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            setResults(response.data || []);
-        } catch (error) {
-            console.error('Error fetching search results:', error);
-            setResults([]);
+        if (event.target.type === 'text') {
+            setQuery(event.target.value);
+        } else if (event.target.type === 'checkbox') {
+            if (event.target.id.startsWith('brand')) {
+                setSelectedBrands(event.target.checked ? [...selectedBrands, event.target.value] : selectedBrands.filter(brand => brand !== event.target.value));
+            } else if (event.target.id.startsWith('category')) {
+                setSelectedCategories(event.target.checked ? [...selectedCategories, event.target.value] : selectedCategories.filter(category => category !== event.target.value));
+            }
         }
     };
+
+    useEffect(() => {
+        const fetchSearchResults = async () => {
+            try {
+                const response = await axios.post(
+                    'https://headlessdevsc.dev.local/api/sitecore/Search/SearchResult',
+                    { query: query, brands: selectedBrands, categories: selectedCategories },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                setResults(response.data || []);
+            } catch (error) {
+                console.error('Error fetching search results:', error);
+                setResults([]);
+            }
+        };
+    
+        if (isSearchClicked) {
+            fetchSearchResults();
+        }
+    }, [query, selectedBrands, selectedCategories, isSearchClicked]);
 
     return (
         <section>
@@ -91,10 +109,9 @@ const Services = (props: ServiceFields) => {
                 <input
                     type="text"
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={handleSearch}
                     placeholder="Search..."
                 />
-                <button className='ml-2 rounded p-1' onClick={handleSearch}>Search</button>
             </div>
 
             {(!isSearchClicked || (isSearchClicked && results.length > 0)) && (
@@ -112,7 +129,7 @@ const Services = (props: ServiceFields) => {
                                         type="checkbox"
                                         id={`brand-${index}`}
                                         value={brand.Name}
-                                        onChange={(e) => setSelectedBrands(e.target.checked ? [...selectedBrands, e.target.value] : selectedBrands.filter(brand => brand !== e.target.value))}
+                                        onChange={handleSearch}
                                     />
                                     <label className='pl-2' htmlFor={`brand-${index}`}>{brand.Name}</label>
                                 </div>
@@ -127,7 +144,7 @@ const Services = (props: ServiceFields) => {
                                         type="checkbox"
                                         id={`category-${index}`}
                                         value={category.Name}
-                                        onChange={(e) => setSelectedCategories(e.target.checked ? [...selectedCategories, e.target.value] : selectedCategories.filter(category => category !== e.target.value))}
+                                        onChange={handleSearch}
                                     />
                                     <label className='pl-2' htmlFor={`category-${index}`}>{category.Name}</label>
                                 </div>
