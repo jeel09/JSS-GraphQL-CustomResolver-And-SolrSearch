@@ -25,17 +25,32 @@ interface Category {
 }
 
 interface APIResponse {
-    Categories: Category[];
+    Brands: {
+        Categories: Category[];
+    }
+    Categories: {
+        Categories: Category[];
+    }
 }
 
 // we can also define type like this
 // interface APIResponse {
-//     Categories: {
-//         Name: string;
-//         Values: {
+//     Brands: {
+//         Categories: {
 //             Name: string;
+//             Values: {
+//                 Name: string;
+//             }[];
 //         }[];
-//     }[];
+//     }
+//     Categories: {
+//         Categories: {
+//             Name: string;
+//             Values: {
+//                 Name: string;
+//             }[];
+//         }[];
+//     }
 // }
 
 const Services = (props: ServiceFields) => {
@@ -51,12 +66,10 @@ const Services = (props: ServiceFields) => {
     useEffect(() => {
         const fetchBrandsAndCategories = async () => {
             try {
-                const brandsResponse = await axios.get<APIResponse>('https://headlessdevsc.dev.local/api/sitecore/Search/GetBrands');
+                const facetResponse = await axios.get<APIResponse>('https://headlessdevsc.dev.local/api/sitecore/Search/GetData');
 
-                const categoriesResponse = await axios.get<APIResponse>('https://headlessdevsc.dev.local/api/sitecore/Search/GetCategories');
-
-                setBrands(brandsResponse.data.Categories || []);
-                setCategories(categoriesResponse.data.Categories || []);
+                setBrands(facetResponse.data.Brands.Categories || []);
+                setCategories(facetResponse.data.Categories.Categories || []);
             } catch (error) {
                 console.error('Error fetching brands and categories:', error);
             }
