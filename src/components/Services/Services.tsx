@@ -15,17 +15,6 @@ type ServiceFields = {
     };
 };
 
-// interface Data {
-//     data: {
-//         Categories: {
-//             Name: string;
-//             Values: {
-//                 Name: string;
-//             }[];
-//         }[];
-//     }
-// }
-
 interface Value {
     Name: string;
 }
@@ -38,6 +27,16 @@ interface Category {
 interface APIResponse {
     Categories: Category[];
 }
+
+// we can also define type like this
+// interface APIResponse {
+//     Categories: {
+//         Name: string;
+//         Values: {
+//             Name: string;
+//         }[];
+//     }[];
+// }
 
 const Services = (props: ServiceFields) => {
     const { fields } = props;
@@ -97,7 +96,7 @@ const Services = (props: ServiceFields) => {
                 setResults([]);
             }
         };
-    
+
         if (isSearchClicked) {
             fetchSearchResults();
         }
