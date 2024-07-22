@@ -24,39 +24,30 @@ interface Category {
     Values: Value[];
 }
 
-interface APIResponse {
-    Brands: {
-        Categories: Category[];
-    }
-    Categories: {
-        Categories: Category[];
-    }
+interface SearchResult {
+    Title: string;
+    Description: string;
+    Price: string;
+    ProductCategory: string;
+    Brand: string;
 }
 
-// we can also define type like this
-// interface APIResponse {
-//     Brands: {
-//         Categories: {
-//             Name: string;
-//             Values: {
-//                 Name: string;
-//             }[];
-//         }[];
-//     }
-//     Categories: {
-//         Categories: {
-//             Name: string;
-//             Values: {
-//                 Name: string;
-//             }[];
-//         }[];
-//     }
-// }
+interface APIResponse {
+    SearchResults: SearchResult[];
+    Facets: {
+        Brands: {
+            Categories: Category[];
+        };
+        Categories: {
+            Categories: Category[];
+        };
+    };
+}
 
 const Services = (props: ServiceFields) => {
     const { fields } = props;
     const [query, setQuery] = useState('');
-    const [results, setResults] = useState([]);
+    const [results, setResults] = useState<SearchResult[]>([]);
     const [isSearchClicked, setIsSearchClicked] = useState(false);
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -64,19 +55,28 @@ const Services = (props: ServiceFields) => {
     const [categories, setCategories] = useState<Category[]>([]);
 
     useEffect(() => {
-        const fetchBrandsAndCategories = async () => {
+        const fetchData = async () => {
             try {
-                const facetResponse = await axios.get<APIResponse>('https://headlessdevsc.dev.local/api/sitecore/Search/GetData');
-
-                setBrands(facetResponse.data.Brands.Categories || []);
-                setCategories(facetResponse.data.Categories.Categories || []);
+                const response = await axios.post<APIResponse>(
+                    'https://headlessdevsc.dev.local/api/sitecore/Search/GetDataAndSearchResult',
+                    { query: query, brands: selectedBrands, categories: selectedCategories },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                setResults(response.data.SearchResults || []);
+                setBrands(response.data.Facets.Brands.Categories || []);
+                setCategories(response.data.Facets.Categories.Categories || []);
             } catch (error) {
-                console.error('Error fetching brands and categories:', error);
+                console.error('Error fetching data:', error);
+                setResults([]);
             }
         };
 
-        fetchBrandsAndCategories();
-    }, []);
+        fetchData();
+    }, [query, selectedBrands, selectedCategories, isSearchClicked]);
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIsSearchClicked(true);
@@ -90,30 +90,6 @@ const Services = (props: ServiceFields) => {
             }
         }
     };
-
-    useEffect(() => {
-        const fetchSearchResults = async () => {
-            try {
-                const response = await axios.post(
-                    'https://headlessdevsc.dev.local/api/sitecore/Search/SearchResult',
-                    { query: query, brands: selectedBrands, categories: selectedCategories },
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
-                setResults(response.data || []);
-            } catch (error) {
-                console.error('Error fetching search results:', error);
-                setResults([]);
-            }
-        };
-
-        if (isSearchClicked) {
-            fetchSearchResults();
-        }
-    }, [query, selectedBrands, selectedCategories, isSearchClicked]);
 
     return (
         <section>
