@@ -105,6 +105,7 @@ const Services = (props: ServiceFields) => {
             {(!isSearchClicked || (isSearchClicked && results.length > 0)) && (
                 <h2 className='pb-3' style={{ textAlign: 'center' }}><Text field={fields.Heading} /></h2>
             )}
+            {isSearchClicked && results.length === 0 && <h2 className='pb-3' style={{ textAlign: 'center', color: 'red' }}>No Search Results Found</h2>}
 
             <div className="container">
                 <div className="row">
@@ -159,7 +160,6 @@ const Services = (props: ServiceFields) => {
                                 </div>
                             </div>
                         ))}
-                        {isSearchClicked && results.length === 0 && <h3 style={{ textAlign: 'center', color: 'red' }}>No Search Results Found</h3>}
                     </div>
                 </div>
             </div>
