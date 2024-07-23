@@ -43,6 +43,10 @@ interface APIResponse {
         Categories: {
             Categories: Category[];
         };
+        Price: {
+            minPrice: number;
+            maxPrice: number;
+        };
     };
 }
 
@@ -56,26 +60,18 @@ const Services = (props: ServiceFields) => {
     const [brands, setBrands] = useState<Category[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [minPrice, setMinPrice] = useState<number>(0);
-    const [maxPrice, setMaxPrice] = useState<number>(0);
+    const [maxPrice, setMaxPrice] = useState<number>(1000);
     const [value, setValue] = useState({ min: 0, max: 1000 });
     const [selectedMinPrice, setSelectedMinPrice] = useState<number>(0);
-    const [selectedMaxPrice, setSelectedMaxPrice] = useState<number>(0);
-
+    const [selectedMaxPrice, setSelectedMaxPrice] = useState<number>(1000);
+    const [sliderMinPrice, setSliderMinPrice] = useState<number>(0);
+    const [sliderMaxPrice, setSliderMaxPrice] = useState<number>(1000);
+    
     useEffect(() => {
-        const fetchPriceFacets = async () => {
-            try {
-                const priceResponse = await axios.get('https://headlessdevsc.dev.local/api/sitecore/Search/GetPriceFacets');
-                setMinPrice(priceResponse.data.minPrice);
-                setMaxPrice(priceResponse.data.maxPrice);
-                setValue({ min: priceResponse.data.minPrice, max: priceResponse.data.maxPrice });
-            } catch (error) {
-                console.error('Error fetching price facets:', error);
-            }
-        };
-
-        fetchPriceFacets();
-    }, []);
-
+        setSliderMinPrice(minPrice);
+        setSliderMaxPrice(maxPrice);
+    }, [minPrice, maxPrice]);
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -94,10 +90,12 @@ const Services = (props: ServiceFields) => {
                         },
                     }
                 );
-                console.log(response);
                 setResults(response.data.SearchResults || []);
                 setBrands(response.data.Facets.Brands.Categories || []);
                 setCategories(response.data.Facets.Categories.Categories || []);
+                setMinPrice(response.data.Facets.Price.minPrice);
+                setMaxPrice(response.data.Facets.Price.maxPrice);
+                setValue({ min: response.data.Facets.Price.minPrice, max: response.data.Facets.Price.maxPrice });
             } catch (error) {
                 console.error('Error fetching data:', error);
                 setResults([]);
@@ -176,13 +174,15 @@ const Services = (props: ServiceFields) => {
                         <div className='pt-2'>
                             <InputRange
                                 minValue={minPrice}
-                                value={value}
+                                value={{ min: sliderMinPrice, max: sliderMaxPrice }}
                                 maxValue={maxPrice}
                                 onChange={value => {
                                     if (typeof value === 'number') {
-                                        setValue({ min: value, max: value });
+                                        setSliderMinPrice(value);
+                                        setSliderMaxPrice(value);
                                     } else {
-                                        setValue(value);
+                                        setSliderMinPrice(value.min);
+                                        setSliderMaxPrice(value.max);
                                     }
                                 }}
                                 onChangeComplete={value => {
