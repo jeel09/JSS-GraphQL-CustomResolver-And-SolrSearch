@@ -8,7 +8,7 @@ const publicUrl = jssConfig.publicUrl;
  */
 const nextConfig = {
   // Set assetPrefix to our public URL
-  assetPrefix: publicUrl,
+  // assetPrefix: publicUrl,
 
   // Allow specifying a distinct distDir when concurrently running app in a container
   distDir: process.env.NEXTJS_DIST_DIR || '.next',
@@ -28,7 +28,7 @@ const nextConfig = {
   },
 
   // Enable React Strict Mode
-  reactStrictMode: true,
+  reactStrictMode: false,
 
   // use this configuration to ensure that only images from the whitelisted domains
   // can be served from the Next.js Image Optimization API

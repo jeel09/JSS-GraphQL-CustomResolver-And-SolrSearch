@@ -1,6 +1,8 @@
 import { Text, TextField } from '@sitecore-jss/sitecore-jss-nextjs';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import InputRange from 'react-input-range';
+import 'react-input-range/lib/css/index.css';
 
 type ServiceFields = {
     fields: {
@@ -53,19 +55,46 @@ const Services = (props: ServiceFields) => {
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [brands, setBrands] = useState<Category[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [minPrice, setMinPrice] = useState<number>(0);
+    const [maxPrice, setMaxPrice] = useState<number>(0);
+    const [value, setValue] = useState({ min: 0, max: 1000 });
+    const [selectedMinPrice, setSelectedMinPrice] = useState<number>(0);
+    const [selectedMaxPrice, setSelectedMaxPrice] = useState<number>(0);
+
+    useEffect(() => {
+        const fetchPriceFacets = async () => {
+            try {
+                const priceResponse = await axios.get('https://headlessdevsc.dev.local/api/sitecore/Search/GetPriceFacets');
+                setMinPrice(priceResponse.data.minPrice);
+                setMaxPrice(priceResponse.data.maxPrice);
+                setValue({ min: priceResponse.data.minPrice, max: priceResponse.data.maxPrice });
+            } catch (error) {
+                console.error('Error fetching price facets:', error);
+            }
+        };
+
+        fetchPriceFacets();
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await axios.post<APIResponse>(
                     'https://headlessdevsc.dev.local/api/sitecore/Search/GetDataAndSearchResult',
-                    { query: query, brands: selectedBrands, categories: selectedCategories },
+                    {
+                        query: query,
+                        brands: selectedBrands,
+                        categories: selectedCategories,
+                        minPrice: selectedMinPrice,
+                        maxPrice: selectedMaxPrice
+                    },
                     {
                         headers: {
                             'Content-Type': 'application/json',
                         },
                     }
                 );
+                console.log(response);
                 setResults(response.data.SearchResults || []);
                 setBrands(response.data.Facets.Brands.Categories || []);
                 setCategories(response.data.Facets.Categories.Categories || []);
@@ -74,20 +103,23 @@ const Services = (props: ServiceFields) => {
                 setResults([]);
             }
         };
-
         fetchData();
-    }, [query, selectedBrands, selectedCategories, isSearchClicked]);
+    }, [query, selectedBrands, selectedCategories, isSearchClicked, selectedMinPrice, selectedMaxPrice]);
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIsSearchClicked(true);
         if (event.target.type === 'text') {
             setQuery(event.target.value);
+            setSelectedMinPrice(value.min);
+            setSelectedMaxPrice(value.max);
         } else if (event.target.type === 'checkbox') {
             if (event.target.id.startsWith('brand')) {
                 setSelectedBrands(event.target.checked ? [...selectedBrands, event.target.value] : selectedBrands.filter(brand => brand !== event.target.value));
             } else if (event.target.id.startsWith('category')) {
                 setSelectedCategories(event.target.checked ? [...selectedCategories, event.target.value] : selectedCategories.filter(category => category !== event.target.value));
             }
+            setSelectedMinPrice(value.min);
+            setSelectedMaxPrice(value.max);
         }
     };
 
@@ -139,6 +171,32 @@ const Services = (props: ServiceFields) => {
                                 </div>
                             ))
                         ))}
+
+                        <h3>Price</h3>
+                        <div className='pt-2'>
+                            <InputRange
+                                minValue={minPrice}
+                                value={value}
+                                maxValue={maxPrice}
+                                onChange={value => {
+                                    if (typeof value === 'number') {
+                                        setValue({ min: value, max: value });
+                                    } else {
+                                        setValue(value);
+                                    }
+                                }}
+                                onChangeComplete={value => {
+                                    if (typeof value === 'number') {
+                                        setSelectedMinPrice(value);
+                                        setSelectedMaxPrice(value);
+                                    } else {
+                                        setSelectedMinPrice(value.min);
+                                        setSelectedMaxPrice(value.max);
+                                    }
+                                    setIsSearchClicked(true);
+                                }}
+                            />
+                        </div>
                     </div>
                     <div className="row col-lg-10">
                         {(!isSearchClicked || (isSearchClicked && results.length < 0) ? fields.items : results).map((item: any, index) => (
