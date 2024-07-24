@@ -61,7 +61,6 @@ const Services = (props: ServiceFields) => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [minPrice, setMinPrice] = useState<number>(0);
     const [maxPrice, setMaxPrice] = useState<number>(1000);
-    const [value, setValue] = useState({ min: 0, max: 1000 });
     const [selectedMinPrice, setSelectedMinPrice] = useState<number>(0);
     const [selectedMaxPrice, setSelectedMaxPrice] = useState<number>(1000);
     const [sliderMinPrice, setSliderMinPrice] = useState<number>(0);
@@ -95,7 +94,6 @@ const Services = (props: ServiceFields) => {
                 setCategories(response.data.Facets.Categories.Categories || []);
                 setMinPrice(response.data.Facets.Price.minPrice);
                 setMaxPrice(response.data.Facets.Price.maxPrice);
-                setValue({ min: response.data.Facets.Price.minPrice, max: response.data.Facets.Price.maxPrice });
             } catch (error) {
                 console.error('Error fetching data:', error);
                 setResults([]);
