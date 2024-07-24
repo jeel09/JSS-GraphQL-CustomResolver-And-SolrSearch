@@ -108,16 +108,17 @@ const Services = (props: ServiceFields) => {
         setIsSearchClicked(true);
         if (event.target.type === 'text') {
             setQuery(event.target.value);
-            setSelectedMinPrice(value.min);
-            setSelectedMaxPrice(value.max);
-        } else if (event.target.type === 'checkbox') {
+            setSelectedMinPrice(selectedMinPrice);
+            setSelectedMaxPrice(selectedMaxPrice);
+        }
+        else if (event.target.type === 'checkbox') {
             if (event.target.id.startsWith('brand')) {
                 setSelectedBrands(event.target.checked ? [...selectedBrands, event.target.value] : selectedBrands.filter(brand => brand !== event.target.value));
             } else if (event.target.id.startsWith('category')) {
                 setSelectedCategories(event.target.checked ? [...selectedCategories, event.target.value] : selectedCategories.filter(category => category !== event.target.value));
             }
-            setSelectedMinPrice(value.min);
-            setSelectedMaxPrice(value.max);
+            setSelectedMinPrice(selectedMinPrice);
+            setSelectedMaxPrice(selectedMaxPrice);
         }
     };
 
