@@ -1,4 +1,4 @@
-import { ImageField, Text, TextField } from '@sitecore-jss/sitecore-jss-nextjs';
+import { ImageField, Image, Text, TextField } from '@sitecore-jss/sitecore-jss-nextjs';
 import React from 'react';
 import { useI18n } from 'next-localization';
 
@@ -33,7 +33,7 @@ const News = (props: NewsFields) => {
                         <div key={index} className="col-lg-4 col-md-6 col-12 p-2">
                             <div className="card">
                                 <div className="image">
-                                    {item.Image.value && <img src={item.Image.value.src} alt="#" />}
+                                    <Image field={item.Image} alt="#" style={{ width: '100%', height: '100%' }} />
                                 </div>
                                 <div className="content">
                                     <h4><Text field={item.Title} /></h4>
